@@ -5,10 +5,8 @@
 
 
 from typing import Annotated
-from fastapi import FastAPI, Depends, Query, HTTPException, status
-from pydantic import BaseModel, NonNegativeInt, Field
+from fastapi import FastAPI, Depends, Query, HTTPException
 from fastapi.requests import Request
-
 
 
 app = FastAPI()
@@ -41,7 +39,7 @@ app = FastAPI()
 #         return db[id]
 #     except IndexError:
 #         raise HTTPException(status_code=404, detail='Index not found')
-    
+
 # @app.get("/message/{id}")
 # async def get_message(post: Post = Depends(get_post_or_404)):
 #     return post
@@ -95,16 +93,20 @@ app = FastAPI()
 
 ####################################################################
 
+
 async def sub_dep(request: Request) -> dict:
-    exclude = {'_receive', 'send', 'scope', 'stream_consumed'}
+    exclude = {"_receive", "send", "scope", "stream_consumed"}
     return {k: v for k, v in vars(request).items() if k not in exclude}
+
 
 async def main_dep(sub_dep_val: dict = Depends(sub_dep)) -> dict:
     return sub_dep_val
 
-@app.get('/test')
+
+@app.get("/test")
 async def test_endpoint(test: dict = Depends(main_dep)):
     return test
+
 
 ####################################################################
 async def get_limit(limit: Annotated[int, Query(...)] = 10) -> dict:
@@ -115,16 +117,20 @@ async def get_limit(limit: Annotated[int, Query(...)] = 10) -> dict:
 async def items(limit: Annotated[dict, Depends(get_limit)]):
     return limit
 
+
 ####################################################################
+
 
 async def check_auth(token: Annotated[str, Query(...)]) -> bool:
     if token != "secret":
         raise HTTPException(status_code=401, detail="Unauthorized")
     return True
 
+
 @app.get("/profile")
 async def profile(check_auth: Annotated[bool, check_auth]) -> str:
     return "User is authorized"
+
 
 ####################################################################
 
@@ -137,7 +143,7 @@ async def pagination_path_func(page: int):
 
 
 async def pagination_func(limit: int = Query(10, gt=0), page: int = 1):
-    return {'limit': limit, 'page': page}
+    return {"limit": limit, "page": page}
 
 
 @app.get("/messages", dependencies=[Depends(pagination_path_func)])
