@@ -1,5 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy import select, update
+from typing import Annotated
+from fastapi import APIRouter, Depends, HTTPException, Query, status
+from sqlalchemy import func, select, update, desc
 from sqlalchemy.exc import MultipleResultsFound
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Session
@@ -7,7 +8,7 @@ from src.db_depends import get_async_db, get_db
 from src.models.categories import Category as CategoryModel
 from src.models.products import Product as ProductModel
 from src.schemas import Product as ProductSchema
-from src.schemas import ProductCreate
+from src.schemas import ProductCreate, ProductList
 
 router = APIRouter(prefix="/products", tags=["products"])
 
@@ -21,6 +22,35 @@ async def get_all_products(db: AsyncSession = Depends(get_async_db)):
         select(ProductModel).where(ProductModel.is_active == True)
     )
     return result.all()
+
+@router.get(
+        "/pagination_and_filtration", 
+        response_model=ProductList)
+async def get_all_products_with_pagination(
+    page: Annotated[int, Query(ge=1)] = 1,
+    page_size: Annotated[int, Query(ge=1, le=200)] = 20,
+    db: AsyncSession = Depends(get_async_db)    
+):
+    """
+    Возвращает список всех активных товаров с пагинацией и фильтрацией
+    """
+    total_stmt = select(func.count()).select_from(
+        ProductModel
+    ).where(ProductModel.is_active)
+
+    total = await db.scalar(total_stmt) or 0
+
+    product_stmt = (
+        select(ProductModel)
+        .where(ProductModel.is_active)
+        .order_by(ProductModel.id)
+        .offset((page-1)*page_size)
+        .limit(page_size)
+    )
+
+    items = (await db.scalars(product_stmt)).all()
+
+    return {"items": items, "total": total, "page": page, "size": page_size}
 
 
 @router.post("/", response_model=ProductSchema, status_code=status.HTTP_201_CREATED)
