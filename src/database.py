@@ -20,7 +20,10 @@ engine = create_engine(DATABASE_URL, echo=True)
 
 from sqlalchemy.orm import sessionmaker, DeclarativeBase #noqa
 
-SessionLocal = sessionmaker(bind=engine)
+SessionLocal = sessionmaker(bind=engine) 
+#autocommite - убдет ли сессия автоматически фиксировать изменения в БД
+#expire_on_commit - в асинхронной сессии - параметр, который указывает SQLA следует ли сбрасывать (expire) состояние объектов в сессии после фиксации транзакции, т.е. помечать атрибуты данного объекта как устаревшие и обновлять их из БД при следующем к ним обращении. 
+
 
 class Base(DeclarativeBase):
     pass

@@ -57,7 +57,7 @@ class ProductCreate(BaseModel):
         Decimal,
         Field(..., gt=0, description="Цена товара (больше 0)", decimal_places=2),
     ]
-    image_url: Annotated[
+    img_url: Annotated[
         str | None, Field(max_length=200, description="URL изображения товара")
     ] = None
     stock: Annotated[
