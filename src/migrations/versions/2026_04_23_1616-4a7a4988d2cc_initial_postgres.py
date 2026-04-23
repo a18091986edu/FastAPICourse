@@ -1,8 +1,8 @@
-"""initial schema
+"""Initial Postgres
 
-Revision ID: b3939fda9ac8
+Revision ID: 4a7a4988d2cc
 Revises: 
-Create Date: 2026-04-22 21:19:59.251224
+Create Date: 2026-04-23 16:16:55.639874
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'b3939fda9ac8'
+revision: str = '4a7a4988d2cc'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
